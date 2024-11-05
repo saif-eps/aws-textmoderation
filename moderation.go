@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/comprehend"
 )
@@ -11,10 +12,11 @@ import (
 // explicitTerms holds the list of explicit terms to filter, initially empty
 var explicitTerms = []string{}
 
-// InitComprehend initializes the Amazon Comprehend client
-func InitComprehend(region string) (*comprehend.Comprehend, error) {
+// InitComprehend initializes the Amazon Comprehend client with explicit credentials and region
+func InitComprehend(accessKey, secretKey, region string) (*comprehend.Comprehend, error) {
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(region),
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
 	})
 	if err != nil {
 		return nil, err
