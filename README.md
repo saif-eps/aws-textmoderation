@@ -20,16 +20,22 @@ Add the `textmoderation` package to your project.
 
 ## Usage
 
-### 1. Initialize Amazon Comprehend
+### 1. Initialize Amazon Comprehend with Credentials
 
-To use the sentiment analysis feature, initialize Amazon Comprehend by specifying an AWS region:
+To use the sentiment analysis feature, initialize Amazon Comprehend by specifying your AWS `accessKey`, `secretKey`, and `region` directly. This avoids the need for environment variables and allows credentials to be passed programmatically.
 
 ```go
-comprehendClient, err := textmoderation.InitComprehend("us-west-2")
+accessKey := "your-access-key"
+secretKey := "your-secret-key"
+region := "your-region"
+
+comprehendClient, err := textmoderation.InitComprehend(accessKey, secretKey, region)
 if err != nil {
     log.Fatal(err)
 }
 ```
+
+> **Note:** Be sure to store AWS credentials securely and avoid hardcoding them directly in your code.
 
 ### 2. Adding Explicit Terms
 
@@ -93,9 +99,48 @@ fmt.Println("Moderation result:", result)  // Outputs: "approved", "flagged-expl
 - AWS SDK for Go
 - Amazon Comprehend credentials and permissions to analyze sentiment
 
+## Security Best Practices
+
+- **Avoid Hardcoding Credentials**: Instead of hardcoding, consider loading credentials securely from a configuration file or using AWS Secrets Manager.
+- **Rotate Access Keys**: Regularly rotate AWS access keys to maintain security.
+- **Restrict Permissions**: Use the least-privilege principle for the IAM user or role associated with the access keys.
+
 ## License
 
-This package is available under the MIT License. See the [LICENSE](LICENSE) file for details.
+This package is available under the [MIT License](LICENSE). See the `LICENSE` file for details.
 
----
 
+```go
+// Example:
+package main
+
+import (
+	"fmt"
+	"log"
+
+	textmoderation "github.com/saif-eps/aws-textmoderation"
+)
+
+func main() {
+	accessKey := ""
+	secretKey := ""
+	region := "us-west-2"
+
+	// Initialize the Comprehend client
+	comprehendClient, err := textmoderation.InitComprehend(accessKey, secretKey, region)
+	if err != nil {
+		log.Fatal("Failed to initialize Comprehend client:", err)
+	}
+
+	// Example text for moderation
+	text := "This is some example text that might contain explicit content or negative sentiment."
+
+	// Perform moderation
+	result, err := textmoderation.ModerateText(comprehendClient, text)
+	if err != nil {
+		log.Fatal("Moderation failed:", err)
+	}
+
+	fmt.Println("Moderation result:", result) // Outputs: "approved", "flagged-explicit", or "flagged-negative"
+}      
+```
